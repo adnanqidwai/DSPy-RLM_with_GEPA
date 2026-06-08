@@ -1,0 +1,3 @@
+{"question": "What makes RLM-GEPA Retrieval different from static RAG?", "support_doc_ids": ["agentic_rag", "evidence_ledger", "fusion_and_eval"], "required_terms": ["planner", "worker", "ledger", "citations", "verification"]}
+{"question": "How does RLM-GEPA Retrieval keep multi-agent retrieval auditable?", "support_doc_ids": ["evidence_ledger", "fusion_and_eval"], "required_terms": ["source", "passage", "role", "citation", "support"]}
+{"question": "Which recent ideas inspired RLM-GEPA Retrieval?", "support_doc_ids": ["modern_sources", "agentic_rag"], "required_terms": ["MindSearch", "STORM", "RAGentA", "MASS-RAG", "orchestrator"]}

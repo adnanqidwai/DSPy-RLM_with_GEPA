@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rlm-gepa-retrieval"
+version = "0.1.0"
+description = "DSPy RLM and GEPA harness for optimizing agentic retrieval policies"
+requires-python = ">=3.10"
+readme = "README.md"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+dspy = ["dspy>=3.2.0"]
+
+[project.scripts]
+rlm-gepa-retrieval = "rlm_gepa_retrieval.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
