@@ -13,19 +13,9 @@ generate tasks -> evaluate RLM policy -> optimize with GEPA -> evaluate optimize
 ```
 
 The repository also includes deterministic controls: a lexical heuristic and a
-retrieve-once RAG baseline. Those controls sanity-check task generation, metrics,
-and reports; the main project is the RLM + GEPA retrieval-policy harness.
+retrieve-once RAG baseline.
 
-## Why This Project
-
-Agentic RAG systems increasingly rely on dynamic search, evidence ledgers, tool
-traces, and citation-grounded evaluation. This project turns those ideas into a
-compact experimental harness: the model must decide how to search, which evidence
-to cite, and how to stay within a retrieval budget, while the host environment
-keeps the trace and the scorer provides reproducible feedback.
-
-See [docs/literature_review.md](docs/literature_review.md) for the source-grounded
-scan and [docs/design.md](docs/design.md) for the RLM + GEPA architecture.
+See [docs/design.md](docs/design.md) for the RLM + GEPA architecture.
 
 ## Quick Start
 
@@ -104,40 +94,6 @@ End-to-end script:
 MODEL=gpt-4o-mini ./scripts/run_openai_compatible_e2e.sh
 ```
 
-## Results And Experiments
-
-This repository is structured so the public results start with deterministic
-controls and then add provider-backed RLM and GEPA runs when they are available.
-Report any run with its question seed, corpus path, model name, metric-call
-budget, and generated eval JSON.
-
-| Run | Provider dependency | What it measures | Command shape |
-| --- | --- | --- | --- |
-| `heuristic` | Deterministic local code | Lexical retrieval baseline, task validity, metric/report sanity | `generate` -> `eval --program heuristic` |
-| `single_shot_rag` | Deterministic local code | Standard retrieve-once top-k RAG control | `generate` -> `eval --program single_shot_rag` |
-| `rlm` | OpenAI-compatible chat model | Base DSPy RLM policy using host-backed retrieval tools and recorded traces | `eval --program rlm --model ...` |
-| `optimized` | OpenAI-compatible chat model | GEPA-tuned textual retrieval policy evaluated with the same scorer | `optimize-gepa` -> `eval --program optimized --artifact ...` |
-
-The controls are intentionally simple. `heuristic` checks whether generated
-tasks, required passage IDs, scoring, and report plumbing behave sensibly.
-`single_shot_rag` is a stronger retrieve-once baseline that separates ordinary
-top-k retrieval from multi-step retrieval control. The main comparison is
-whether a trace-grounded RLM policy, and then the GEPA-tuned policy, improve
-citation support and budget use under the same generated task set.
-
-For an honest experiment table, keep the rows separate:
-
-| Program | Mean score | Answer | Evidence recall | Citation precision | Budget efficiency | Notes |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `heuristic` | from eval JSON | from eval JSON | from eval JSON | from eval JSON | from eval JSON | Lexical control |
-| `single_shot_rag` | from eval JSON | from eval JSON | from eval JSON | from eval JSON | from eval JSON | Retrieve-once top-k RAG control |
-| `rlm` | from eval JSON | from eval JSON | from eval JSON | from eval JSON | from eval JSON | Base DSPy RLM with host-recorded trace |
-| `optimized` | from eval JSON | from eval JSON | from eval JSON | from eval JSON | from eval JSON | GEPA artifact evaluated after optimization |
-
-Only fill the `rlm` and `optimized` rows after running the corresponding
-commands. Until then, the honest result is the deterministic control results
-plus the reproducible command path for provider-backed experiments.
-
 ## What The RLM Does
 
 The DSPy RLM receives a question, a compact corpus manifest, and a retrieval
@@ -153,11 +109,10 @@ searched efficiently.
 
 ## What GEPA Optimizes
 
-GEPA does not train model weights. It optimizes the textual retrieval policy
-inside the DSPy RLM program. The metric returns both a score and failure feedback:
-missed supporting passages, unsupported citations, missing answer terms, and
-wasted search budget. GEPA uses that feedback to produce a better retrieval
-policy artifact.
+GEPA optimizes the textual retrieval policy inside the DSPy RLM program. The
+metric returns both a score and failure feedback: missed supporting passages,
+unsupported citations, missing answer terms, and wasted search budget. GEPA uses
+that feedback to produce a better retrieval policy artifact.
 
 ## CLI Overview
 
@@ -211,30 +166,3 @@ python -m compileall -q src tests
 The test suite covers task generation, retrieval environments, deterministic
 metrics, DSPy program construction, report writing, API configuration validation,
 and command-line flows.
-
-## Repository Hygiene
-
-Generated artifacts are ignored by git:
-
-- `generated/`
-- `runs/`
-- `reports/`
-- `artifacts/`
-- `.env`
-- `*.env`
-
-Keep committed examples deterministic and small. Do not commit provider keys,
-custom endpoint values, run logs, or generated task dumps.
-
-## Current Limitations
-
-- The bundled corpus is intentionally small.
-- GEPA optimizes the textual DSPy policy, not model weights.
-- The scorer checks required terms and gold passage IDs; it is not an LLM judge.
-- The deterministic controls are baselines, not production retrieval stacks.
-
-## Related Project
-
-PatchGym is a sibling project that applies the DSPy RLM + GEPA optimization
-pattern to coding-agent patch planning and verifier-backed repair evaluation. It
-is intended to live as a separate repository.

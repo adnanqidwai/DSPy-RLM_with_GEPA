@@ -88,35 +88,38 @@ def test_public_docs_keep_rlm_gepa_as_primary_framing() -> None:
     design = (ROOT / "docs" / "design.md").read_text(encoding="utf-8")
     literature = (ROOT / "docs" / "literature_review.md").read_text(encoding="utf-8")
 
-    assert "trace-grounded RLM policy" in readme
+    assert "DSPy RLM + GEPA harness" in readme
     assert "host-recorded trace" in design
     assert "trace-grounded retrieval-policy harness" in literature
 
 
-def test_public_docs_define_honest_results_shape() -> None:
+def test_public_docs_define_supported_programs_and_metrics() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     design = (ROOT / "docs" / "design.md").read_text(encoding="utf-8")
     literature = (ROOT / "docs" / "literature_review.md").read_text(encoding="utf-8")
 
-    assert "## Results And Experiments" in readme
     assert "## Results Protocol" in design
     assert "## Baseline And Results Shape" in literature
-    assert "| `heuristic` | Deterministic local code | Lexical retrieval baseline" in readme
-    assert "| `single_shot_rag` | Deterministic local code | Standard retrieve-once top-k RAG control" in readme
-    assert "| `rlm` | OpenAI-compatible chat model | Base DSPy RLM policy" in readme
-    assert "| `optimized` | OpenAI-compatible chat model | GEPA-tuned textual retrieval policy" in readme
-    assert "Only fill the `rlm` and `optimized` rows after running" in readme
+    assert "`eval` | Score `heuristic`, `single_shot_rag`, `rlm`, or `optimized` programs" in readme
+    assert "**citation precision**" in readme
+    assert "**budget efficiency**" in readme
     assert "Do not imply that the RLM or GEPA rows exist" in design
 
 
-def test_readme_has_public_release_sections() -> None:
+def test_readme_avoids_meta_release_sections() -> None:
     readme = (ROOT / "README.md").read_text()
 
     assert "## Development" in readme
-    assert "## Current Limitations" in readme
-    assert "## Repository Hygiene" in readme
-    assert "## Related Project" in readme
     assert "optimize-gepa" in readme
+    banned = (
+        "Repository Hygiene",
+        "Current Limitations",
+        "Related Project",
+        "Why This Project",
+        "sibling project",
+        "honest experiment",
+    )
+    assert not any(phrase in readme for phrase in banned)
 
 
 def test_ci_workflow_is_present() -> None:
